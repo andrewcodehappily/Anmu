@@ -1,55 +1,65 @@
-# 暗幕 Anmu
+# Anmu (暗幕)
 
-讓指定 macOS App 的視窗變暗，保留原本的滑鼠與鍵盤操作。
+[English](README.md) | [繁體中文](README-ZH-TW.md) | [简体中文](README-ZH-CN.md)
 
-暗幕是一個輕量的選單列工具：在目標視窗上加一層可穿透的黑色半透明遮罩。只有指定 App 位於前景時才顯示，切換到其他 App 就自動收起。
+Dim a selected macOS app’s window while keeping mouse and keyboard input working normally.
 
-## 功能
+Anmu is a lightweight menu bar utility that places a click-through, translucent black overlay over the target window. The overlay appears only while the selected app is in the foreground and hides when you switch to another app.
 
-- 從已開啟的 App 清單選擇目標。
-- 遮暗程度 0–95%，即時調整。
-- 跟隨目標視窗的位置與尺寸，每 0.15 秒更新。
-- 支援加入 macOS 全螢幕空間；特殊遊戲或獨占全螢幕仍需個別測試。
-- 遮罩不攔截滑鼠、不取得鍵盤焦點；控制台是一般視窗，不置頂。
-- 全域快捷鍵 **Control＋Option＋Command＋D** 切換遮罩。
-- 記住遮暗程度與目標 App；每次啟動預設關閉遮罩。
-- 螢幕喚醒或顯示器配置改變時，自動關閉遮罩。
+## Features
 
-## 系統需求
+- Select a target from running apps.
+- Adjust dimming from 0–95% in real time.
+- Follow the target window’s position and size, updating every 0.15 seconds.
+- Join macOS full-screen spaces; special games and exclusive full-screen modes still need individual testing.
+- The overlay does not intercept mouse input or take keyboard focus. The control window behaves like a regular window and does not stay on top.
+- Toggle the overlay with the global shortcut **Control + Option + Command + D**.
+- Remember the dimming level and target app. The overlay starts disabled on every launch.
+- Disable the overlay when displays wake or the display configuration changes.
 
-目前提供的編譯腳本與下載版本適用於 **macOS 26.0 以上、Apple Silicon（arm64）**。尚未驗證 Intel 或較舊 macOS。
+## Requirements
 
-## 下載與使用
+The current build script and downloadable app target **macOS 26.0 or later on Apple Silicon (arm64)**. This is a build configuration, not a requirement established by the app’s features. Intel and older macOS versions have not been verified.
 
-從 [Releases](https://github.com/andrewcodehappily/Anmu/releases) 下載 ZIP，解壓縮後開啟「暗幕.app」。目前為本機臨時簽署，未經 Apple 公證，macOS 可能限制開啟；也可以自行審閱原始碼並編譯。
+## Download and use
 
-1. 開啟要遮暗的 App，再開啟暗幕。
-2. 從控制台下拉選單選擇目標；若找不到，按「重新整理 App 清單」。
-3. 調整「遮暗程度」，勾選「啟用遮罩」。
-4. 按「收起控制台，回到 App」。
-5. 透過選單列 **◐／●** 找回控制台，或按全域快捷鍵切換遮罩。
+Download the ZIP from [Releases](https://github.com/andrewcodehappily/Anmu/releases), extract it, and open `暗幕.app`. The app is ad-hoc signed and is not notarized by Apple, so macOS may restrict opening it. You can also review the source and build it yourself.
 
-要恢復原本亮度，可按「立即恢復亮度」、關閉遮罩或結束暗幕。實體螢幕亮度需自行調整。
+The app’s interface is currently in Traditional Chinese; these README translations do not change the interface language.
 
-## 自行編譯
+1. Open the app you want to dim, then launch Anmu.
+2. Select the target in the control window. Click **重新整理 App 清單** (Refresh app list) if it is missing.
+3. Adjust **遮暗程度** (Dimming level) and check **啟用遮罩** (Enable overlay).
+4. Click **收起控制台，回到 App** (Hide controls and return to app).
+5. Use the **◐ / ●** menu bar icon to reopen the controls, or use the global shortcut to toggle the overlay.
 
-安裝 Xcode 或相容的 Command Line Tools（需具備 macOS 26 SDK 與 Swift 編譯器），在專案根目錄執行：
+To restore the original brightness, click **立即恢復亮度** (Restore brightness), disable the overlay, or quit Anmu. Adjust your physical display brightness separately.
+
+## Build from source
+
+Install Xcode or compatible Command Line Tools with the macOS 26 SDK and Swift compiler, then run from the project root:
 
 ```sh
 ./scripts/build.sh
 open 'build/暗幕.app'
 ```
 
-使用原生 AppKit、Core Graphics 與 Carbon，不需第三方套件。
+Uses native AppKit, Core Graphics, and Carbon, with no third-party packages.
 
-## 限制
+## Limitations
 
-- 遮罩只是壓暗畫面，不會讓 App 背景透明，也不保證旁人或 10 公尺外的人無法辨識內容。
-- 多視窗 App 目前只處理清單中最前方、可見、尺寸大於 40×40 的一般視窗。
-- 不進行畫面錄影或影像分析；使用系統視窗清單取得視窗位置與尺寸。
-- 快捷鍵若註冊失敗，控制台會顯示提示，仍可使用選單列控制。
-- 全螢幕、跨螢幕及不同 App 的相容性仍需更多實測。編譯成功不代表所有情境均已驗證。
+- The overlay only darkens the image. It does not make app backgrounds transparent or guarantee privacy from bystanders or viewers 10 meters away.
+- For apps with multiple windows, the current version handles only the frontmost visible regular window in the window list that is larger than 40 × 40.
+- No screen recording or image analysis is performed; the system window list supplies window positions and sizes.
+- If shortcut registration fails, the controls show a message. The menu bar controls remain available.
+- Full-screen, multiple-display, and app-specific compatibility need more real-world testing. A successful build does not verify every scenario.
 
-## 授權
+## Contributions welcome
+
+Issues and pull requests are welcome! Contributions for older macOS compatibility, Intel/universal builds, interface localization, bug fixes, and documentation improvements are especially welcome.
+
+Please describe your changes, the macOS version and chip architecture used for testing, and the results in your PR. Pull requests are reviewed on their merits.
+
+## License
 
 [MIT License](LICENSE)
