@@ -8,6 +8,7 @@ Anmu is a lightweight menu bar utility that places a click-through, translucent 
 
 ## Features
 
+- Automatically use English, Traditional Chinese, or Simplified Chinese based on system language preferences.
 - Select a target from running apps.
 - Adjust dimming from 0–95% in real time.
 - Follow the target window’s position and size, updating every 0.15 seconds.
@@ -25,7 +26,7 @@ The current build script and downloadable app target **macOS 26.0 or later on Ap
 
 Download the ZIP from [Releases](https://github.com/andrewcodehappily/Anmu/releases), extract it, and open `暗幕.app`. The app is ad-hoc signed and is not notarized by Apple, so macOS may restrict opening it. You can also review the source and build it yourself.
 
-The app’s interface is currently in Traditional Chinese; these README translations do not change the interface language.
+The interface supports English, Traditional Chinese, and Simplified Chinese. It follows your macOS preferred languages, with English as the fallback. Relaunch Anmu after changing the language. macOS per-app language preferences are also supported.
 
 1. Open the app you want to dim, then launch Anmu.
 2. Select the target in the control window. Click **重新整理 App 清單** (Refresh app list) if it is missing.

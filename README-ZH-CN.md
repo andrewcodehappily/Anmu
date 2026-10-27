@@ -25,7 +25,7 @@
 
 从 [Releases](https://github.com/andrewcodehappily/Anmu/releases) 下载 ZIP，解压后打开 `暗幕.app`。目前为本地临时签名，未经 Apple 公证，macOS 可能限制打开；也可以自行审阅源代码并编译。
 
-App 界面目前使用繁体中文，README 翻译不会改变界面语言。
+界面支持英文、繁体中文与简体中文，跟随 macOS 偏好语言；其他语言使用英文。更改语言后请重新打开暗幕，也支持 macOS 针对单个 App 的语言设置。
 
 1. 打开要调暗的 App，再打开暗幕。
 2. 从控制面板下拉列表选择目标；若找不到，点击“重新整理 App 清單”（刷新 App 列表）。

@@ -13,10 +13,10 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var statusItem: NSStatusItem!
     let amount = NSSlider(value: 50, minValue: 0, maxValue: 95, target: nil, action: nil)
     let valueLabel = NSTextField(labelWithString: "")
-    let stateLabel = NSTextField(labelWithString: "遮罩已關閉")
+    let stateLabel = NSTextField(labelWithString: localized("overlay.off"))
     let shortcutLabel = NSTextField(wrappingLabelWithString: "")
     let screens = NSPopUpButton(frame: .zero, pullsDown: false)
-    let toggle = NSButton(checkboxWithTitle: "啟用遮罩", target: nil, action: nil)
+    let toggle = NSButton(checkboxWithTitle: localized("overlay.enable"), target: nil, action: nil)
     var enabled = false
     var applications: [NSRunningApplication] = []
     var selectedPID: pid_t?
@@ -33,13 +33,13 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
         amount.doubleValue = min(95, max(0, defaults.double(forKey: "darkness")))
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.title = "◐"
-        statusItem.button?.toolTip = "暗幕：遮罩已關閉"
+        statusItem.button?.toolTip = localizedFormat("status.tooltip", localized("app.name"), localized("overlay.off"))
         let menu = NSMenu()
-        menu.addItem(item("開啟控制台…", #selector(showPanel), ","))
-        menu.addItem(item("切換遮罩　⌃⌥⌘D", #selector(toggleMask), ""))
-        menu.addItem(item("立即恢復亮度", #selector(disableMask), ""))
+        menu.addItem(item(localized("menu.controls"), #selector(showPanel), ","))
+        menu.addItem(item(localized("menu.toggle"), #selector(toggleMask), ""))
+        menu.addItem(item(localized("brightness.restore"), #selector(disableMask), ""))
         menu.addItem(.separator())
-        menu.addItem(item("結束暗幕", #selector(quit), "q"))
+        menu.addItem(item(localized("menu.quit"), #selector(quit), "q"))
         statusItem.menu = menu
         let main = NSMenu(); let root = NSMenuItem(); root.submenu = menu; main.addItem(root); NSApp.mainMenu = main
         buildPanel()
@@ -57,26 +57,28 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let result = NSMenuItem(title: title, action: action, keyEquivalent: key); result.target = self; return result
     }
     func buildPanel() {
-        panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 420, height: 450), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        panel.title = "暗幕"; panel.isReleasedWhenClosed = false; panel.delegate = self
+        panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 500), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        panel.title = localized("app.name"); panel.isReleasedWhenClosed = false; panel.delegate = self
         panel.level = .normal
-        let title = NSTextField(labelWithString: "指定 App 遮暗")
+        let title = NSTextField(labelWithString: localized("panel.title"))
         title.font = .boldSystemFont(ofSize: 20)
         amount.target = self; amount.action = #selector(amountChanged)
         amount.isContinuous = true
-        amount.setAccessibilityLabel("遮暗程度")
-        amount.widthAnchor.constraint(equalToConstant: 370).isActive = true
+        amount.setAccessibilityLabel(localized("dimming.label"))
+        amount.widthAnchor.constraint(equalToConstant: 432).isActive = true
         screens.target = self; screens.action = #selector(screenChanged)
-        screens.widthAnchor.constraint(equalToConstant: 370).isActive = true
+        screens.widthAnchor.constraint(equalToConstant: 432).isActive = true
         toggle.target = self; toggle.action = #selector(toggleMask)
-        let restore = NSButton(title: "立即恢復亮度", target: self, action: #selector(disableMask))
-        let done = NSButton(title: "收起控制台，回到 App", target: self, action: #selector(hidePanel))
-        let help = NSTextField(wrappingLabelWithString: "只遮指定 App 最前方的一般視窗。\n切換到其他 App 時收起遮罩；滑鼠與鍵盤照常操作。")
-        let refresh = NSButton(title: "重新整理 App 清單", target: self, action: #selector(refreshApplications))
+        let restore = NSButton(title: localized("brightness.restore"), target: self, action: #selector(disableMask))
+        let done = NSButton(title: localized("controls.hide"), target: self, action: #selector(hidePanel))
+        let help = NSTextField(wrappingLabelWithString: localized("help"))
+        help.widthAnchor.constraint(equalToConstant: 432).isActive = true
+        shortcutLabel.widthAnchor.constraint(equalToConstant: 432).isActive = true
+        let refresh = NSButton(title: localized("apps.refresh"), target: self, action: #selector(refreshApplications))
         let stack = NSStackView(views: [title, screens, refresh, valueLabel, amount, toggle, stateLabel, shortcutLabel, help, restore, done])
         stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 10; stack.translatesAutoresizingMaskIntoConstraints = false
         panel.contentView!.addSubview(stack)
-        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: panel.contentView!.leadingAnchor, constant: 24), stack.trailingAnchor.constraint(equalTo: panel.contentView!.trailingAnchor, constant: -24), stack.topAnchor.constraint(equalTo: panel.contentView!.topAnchor, constant: 20)])
+        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: panel.contentView!.leadingAnchor, constant: 24), stack.trailingAnchor.constraint(equalTo: panel.contentView!.trailingAnchor, constant: -24), stack.topAnchor.constraint(equalTo: panel.contentView!.topAnchor, constant: 20), stack.bottomAnchor.constraint(lessThanOrEqualTo: panel.contentView!.bottomAnchor, constant: -20)])
         panel.center()
     }
     @objc func refreshApplications() { refreshScreens() }
@@ -86,7 +88,7 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
         applications = NSWorkspace.shared.runningApplications.filter {
             $0.activationPolicy == .regular && $0.processIdentifier != ProcessInfo.processInfo.processIdentifier
         }.sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
-        for application in applications { screens.addItem(withTitle: application.localizedName ?? application.bundleIdentifier ?? "未命名 App") }
+        for application in applications { screens.addItem(withTitle: application.localizedName ?? application.bundleIdentifier ?? localized("app.unnamed")) }
         let saved = defaults.string(forKey: "targetApp") ?? ""
         let index = applications.firstIndex(where: { $0.bundleIdentifier == saved }) ?? 0
         selectedPID = applications.indices.contains(index) ? applications[index].processIdentifier : nil
@@ -127,11 +129,11 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
         updateLabels()
     }
     func updateLabels() {
-        valueLabel.stringValue = "遮暗程度：\(Int(amount.doubleValue.rounded()))%"
-        stateLabel.stringValue = enabled ? "遮罩已啟用" : "遮罩已關閉"
+        valueLabel.stringValue = localizedFormat("dimming.value", Int(amount.doubleValue.rounded()))
+        stateLabel.stringValue = enabled ? localized("overlay.on") : localized("overlay.off")
         toggle.state = enabled ? .on : .off
         statusItem.button?.title = enabled ? "●" : "◐"
-        statusItem.button?.toolTip = "暗幕：" + stateLabel.stringValue
+        statusItem.button?.toolTip = localizedFormat("status.tooltip", localized("app.name"), stateLabel.stringValue)
     }
     @objc func toggleMask() {
         if enabled { disableMask(); return }
@@ -166,7 +168,7 @@ final class Dimmer: NSObject, NSApplicationDelegate, NSWindowDelegate {
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
         let registered = result == noErr ? RegisterEventHotKey(UInt32(kVK_ANSI_D), UInt32(controlKey | optionKey | cmdKey), EventHotKeyID(signature: 0x44494D52, id: 1), GetApplicationEventTarget(), 0, &hotkey) : result
-        shortcutLabel.stringValue = registered == noErr ? "全域開關：⌃⌥⌘D（其他 App 中也可使用）" : "快捷鍵註冊失敗（\(registered)），請使用選單列開關。"
+        shortcutLabel.stringValue = registered == noErr ? localized("shortcut.ready") : localizedFormat("shortcut.failed", registered)
     }
     func applicationWillTerminate(_ notification: Notification) {
         overlay?.orderOut(nil)
